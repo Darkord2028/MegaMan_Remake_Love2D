@@ -1,40 +1,31 @@
 local Object = require("engine.core.object")
-local TransformComponent = require("engine.components.TransformComponent")
 
 local Entity = Object:extend()
 
 function Entity:new()
 	self.components = {}
-
-	-- Mandotary TransformComponent
-	self:addComponent(TransformComponent())
 end
 
 -- COMPONENT MANAGEMENT
 
 function Entity:addComponent(component)
+	assert(component.__name, "Component must have __name")
 	component.entity = self
-	table.insert(self.components, component)
-	return component
+	self.components[component.__name] = component
 end
 
-function Entity:getComponent(componentName)
-	for _, component in ipairs(self.components) do
-		if component.__name == componentName then
-			return component
-		end
-	end
-	return nil
+function Entity:getComponent(name)
+	return self.components[name]
 end
 
-function Entity:hasComponent(componentName)
-	return self:getComponent(componentName) ~= nil
+function Entity:hasComponent(name)
+	return self.components[name] ~= nil
 end
 
 -- LIFECYCLE
 
 function Entity:update(dt)
-	for _, component in ipairs(self.components) do
+	for _, component in pairs(self.components) do
 		if component.update then
 			component:update(dt)
 		end
@@ -42,7 +33,7 @@ function Entity:update(dt)
 end
 
 function Entity:draw()
-	for _, component in ipairs(self.components) do
+	for _, component in pairs(self.components) do
 		if component.draw then
 			component:draw()
 		end

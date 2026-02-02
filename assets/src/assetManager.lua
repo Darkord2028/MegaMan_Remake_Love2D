@@ -1,90 +1,66 @@
 local AssetManager = {
-	images = {},
-	sounds = {},
-	fonts = {},
-	quads = {},
+    images = {},
+    sounds = {},
+    fonts  = {},
 }
 
--- INTERNAL LOADERS
+-- Internal helpers
 
 local function assertExists(path)
-	assert(love.filesystem.getInfo(path), "ASSET NOT FOUND: " .. path)
+    assert(love.filesystem.getInfo(path), "ASSET NOT FOUND: " .. path)
 end
 
--- IMAGE
+-- Manifest loading
 
-function AssetManager.loadImage(name, path)
-	if AssetManager.images[name] then
-		return AssetManager.images[name]
-	end
+function AssetManager.loadManifest(manifest)
+    -- Images
+    for id, path in pairs(manifest.images or {}) do
+        assertExists(path)
+        AssetManager.images[id] = love.graphics.newImage(path)
+    end
 
-	assertExists(path)
-	AssetManager.images[name] = love.graphics.newImage(path)
-	return AssetManager.images[name]
+    -- Sounds
+    for id, def in pairs(manifest.sounds or {}) do
+        assertExists(def.path)
+        AssetManager.sounds[id] =
+            love.audio.newSource(def.path, def.type or "static")
+    end
+
+    -- Fonts
+    for id, def in pairs(manifest.fonts or {}) do
+        AssetManager.fonts[id] = AssetManager.fonts[id] or {}
+        assertExists(def.path)
+        AssetManager.fonts[id][def.size] =
+            love.graphics.newFont(def.path, def.size)
+    end
 end
 
-function AssetManager.getImage(name)
-	assert(AssetManager.images[name], "IMAGE NOT LOADED: " .. name)
-	return AssetManager.images[name]
+-- Getters (READ ONLY)
+
+function AssetManager.image(id)
+    assert(AssetManager.images[id], "IMAGE NOT LOADED: " .. id)
+    return AssetManager.images[id]
 end
 
--- SOUND
-
-function AssetManager.loadSound(name, path, type)
-	if AssetManager.sounds[name] then
-		return AssetManager.sounds[name]
-	end
-
-	assertExists(path)
-	AssetManager.sounds[name] = love.audio.newSource(path, type or "static")
-	return AssetManager.sounds[name]
+function AssetManager.sound(id)
+    assert(AssetManager.sounds[id], "SOUND NOT LOADED: " .. id)
+    return AssetManager.sounds[id]:clone()
 end
 
-function AssetManager.getSound(name)
-	assert(AssetManager.sounds[name], "SOUND NOT LOADED: " .. name)
-	return AssetManager.sounds[name]:clone()
+function AssetManager.font(id, size)
+    assert(
+        AssetManager.fonts[id] and AssetManager.fonts[id][size],
+        "FONT NOT LOADED: " .. id .. " (" .. size .. ")"
+    )
+    return AssetManager.fonts[id][size]
 end
 
--- FONT
-
-function AssetManager.loadFont(name, path, size)
-	AssetManager.fonts[name] = AssetManager.fonts[name] or {}
-	if AssetManager.fonts[name][size] then
-		return AssetManager.fonts[name][size]
-	end
-
-	assertExists(path)
-	AssetManager.fonts[name][size] = love.graphics.newFont(path, size)
-	return AssetManager.fonts[name][size]
-end
-
-function AssetManager.getFont(name, size)
-	assert(
-		AssetManager.fonts[name] and AssetManager.fonts[name][size],
-		"FONT NOT LOADED: " .. name .. " (" .. size .. ")"
-	)
-	return AssetManager.fonts[name][size]
-end
-
--- QUADS
-
-function AssetManager.createQuad(name, imageName, x, y, w, h)
-	local image = AssetManager.getImage(imageName)
-	AssetManager.quads[name] = love.graphics.newQuad(x, y, w, h, image:getWidth(), image:getHeight())
-end
-
-function AssetManager.getQuad(name)
-	assert(AssetManager.quads[name], "QUAD NOT FOUND: " .. name)
-	return AssetManager.quads[name]
-end
-
--- CLEANUP
+-- Cleanup / reload
 
 function AssetManager.clear()
-	AssetManager.images = {}
-	AssetManager.sounds = {}
-	AssetManager.fonts = {}
-	AssetManager.quads = {}
+    AssetManager.images = {}
+    AssetManager.sounds = {}
+    AssetManager.fonts  = {}
 end
 
 return AssetManager

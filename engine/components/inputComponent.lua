@@ -1,5 +1,5 @@
 local EntityComponent = require("engine.ecs.entityComponent")
-local Event = require("engine.core.Event")
+local Event = require("engine.core.event")
 local InputAction = require("engine.input.inputAction")
 
 local InputComponent = EntityComponent:extend()

@@ -1,7 +1,7 @@
 local Class = {}
 
-function Class.extend(base)
-	base = base or {}
+function Class:extend()
+	local base = self
 
 	local cls = {}
 	cls.__index = cls

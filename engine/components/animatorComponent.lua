@@ -5,45 +5,40 @@ local AnimatorComponent = EntityComponent:extend()
 AnimatorComponent.__name = "AnimatorComponent"
 
 function AnimatorComponent:new(spriteSheet)
-	self.sheet = spriteSheet
-	self.animations = {}
-	self.current = nil
+    self.sheet = spriteSheet
+    self.grid = spriteSheet:getGrid()
+    self.animations = {}
+    self.current = nil
 end
 
 function AnimatorComponent:addAnimation(name, frames, duration, onLoop)
-	self.animations[name] = anim8.newAnimation(frames, duration, onLoop)
+    self.animations[name] =
+        anim8.newAnimation(frames, duration, onLoop)
 end
 
 function AnimatorComponent:play(name, force)
-	local anim = self.animations[name]
-	if not anim then
-		return
-	end
+    local anim = self.animations[name]
+    if not anim then return end
+    if not force and self.current == anim then return end
 
-	if not force and self.current == anim then
-		return
-	end
-
-	self.current = anim
-	self.current:gotoFrame(1)
-	self.current:resume()
+    self.current = anim
+    anim:gotoFrame(1)
+    anim:resume()
 end
 
 function AnimatorComponent:update(dt)
-	if self.current then
-		self.current:update(dt)
-	end
-end
+    if not self.current then return end
 
-function AnimatorComponent:getFrame()
-	if not self.current then
-		return nil
-	end
-	return self.current.frames[self.current.position]
-end
+    self.current:update(dt)
 
-function AnimatorComponent:getImage()
-	return self.sheet:getImage()
+    local spriteRenderer =
+        self.entity:getComponent("SpriteRendererComponent")
+
+    if spriteRenderer then
+        spriteRenderer:setFrame(
+            self.current.frames[self.current.position]
+        )
+    end
 end
 
 return AnimatorComponent
