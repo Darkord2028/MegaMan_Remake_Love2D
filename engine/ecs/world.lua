@@ -1,18 +1,24 @@
-local World = { entities = {} }
+local Object = require("engine.core.object")
 
-function World.add(entity)
-	table.insert(World.entities, entity)
+local World = Object:extend()
+
+function World:new()
+	self.entities = {}
 end
 
-function World.update(dt)
-	for _, e in ipairs(World.entities) do
-		e:update(dt)
+function World:addEntity(entity)
+	table.insert(self.entities, entity)
+end
+
+function World:updateEntities(dt)
+	for _, entity in ipairs(self.entities) do
+		entity:update(dt)
 	end
 end
 
-function World.draw()
-	for _, e in ipairs(World.entities) do
-		e:draw()
+function World:draw()
+	for _, entity in ipairs(self.entities) do
+		entity:draw()
 	end
 end
 
