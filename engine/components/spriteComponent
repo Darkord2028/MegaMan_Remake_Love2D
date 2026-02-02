@@ -1,0 +1,19 @@
+local EntityComponent = require("engine.ecs.entityComponent")
+
+local SpriteComponent = EntityComponent:extend()
+SpriteComponent.__name = "SpriteComponent"
+
+function SpriteComponent:new(image, quad)
+	self.image = image
+	self.quad = quad -- This is optional, either you can have a image or quad
+end
+
+function SpriteComponent:getImage()
+	return self.image
+end
+
+function SpriteComponent:getQuad()
+	return self.quad
+end
+
+return SpriteComponent
