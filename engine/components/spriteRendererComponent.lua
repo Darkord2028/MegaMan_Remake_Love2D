@@ -1,4 +1,5 @@
 local EntityComponent = require("engine.ecs.entityComponent")
+local SortingLayers = require("engine.graphics.sortingLayers")
 
 local SpriteRendererComponent = EntityComponent:extend()
 SpriteRendererComponent.__name = "SpriteRendererComponent"
@@ -10,6 +11,8 @@ function SpriteRendererComponent:new(image)
     self.flipX = false
     self.flipY = false
     self.color = {1, 1, 1, 1}
+    self.sortingLayer = SortingLayers.Default
+    self.orderInLayer = 0
 end
 
 function SpriteRendererComponent:setFrame(quad)
@@ -29,6 +32,18 @@ function SpriteRendererComponent:setColor(r, g, b, a)
     self.color[2] = 1 or g
     self.color[3] = 1 or b
     self.color[4] = 1 or a
+end
+
+function SpriteRendererComponent:setSortingLayer(layer)
+    self.sortingLayer = layer
+end
+
+function SpriteRendererComponent:setOrderInLayer(order)
+    self.orderInLayer = order
+end
+
+function SpriteRendererComponent:getSortKey()
+    return self.sortingLayer * 10000 + self.orderInLayer
 end
 
 function SpriteRendererComponent:draw()

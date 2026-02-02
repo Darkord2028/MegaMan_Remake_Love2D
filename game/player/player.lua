@@ -28,6 +28,7 @@ function Player:new(x, y)
     local renderer = SpriteRendererComponent(playerSheet:getImage())
     self:addComponent(renderer)
     self.renderer = renderer
+    self.renderer:setOrderInLayer(0)
 
     -- ANIMATOR
     local animator = AnimatorComponent(playerSheet)
