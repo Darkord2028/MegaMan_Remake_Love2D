@@ -26,7 +26,7 @@ function Camera:follow(target)
     self.target = target
 end
 
-function Camera:update()
+function Camera:update(dt)
     if not self.target then return end
 
     local transform = self.target:getComponent("TransformComponent")

@@ -6,27 +6,55 @@ World.__name = "World"
 
 function World:new()
 	self.entities = {}
+    self.enabled = true
 	self.mainCamera = Camera.new(0, 0, 1)
 end
 
 function World:addEntity(entity)
 	table.insert(self.entities, entity)
+
+    if self.enabled then
+        entity:onEnable()
+    end
 end
 
-function World:setCameraTarget(entity)
-	self.mainCamera:follow(entity)
+function World:onEnable()
+    self.enabled = true
+    
+    for _, entity in ipairs(self.entities) do
+        entity:onEnable()
+    end
+end
+
+function World:onDisable()
+    self.enabled = false
+
+    for _, entity in ipairs(self.entities) do
+        entity:onDisable()
+    end
 end
 
 function World:update(dt)
-	for _, entity in ipairs(self.entities) do
-		entity:update(dt)
-	end
+    if not self.enabled then return end
 
-	self.mainCamera:update()
+    for _, entity in ipairs(self.entities) do
+        entity:update(dt)
+    end
+
+    if self.mainCamera.update then
+        self.mainCamera:update(dt)
+    end
 end
 
+
 function World:draw()
+    if not self.enabled then return end
+
     self.mainCamera:attach()
+
+    if self.gameMap then
+        self.gameMap:draw()
+    end
 
     local renderers = {}
 
@@ -48,5 +76,20 @@ function World:draw()
     self.mainCamera:detach()
 end
 
+function World:destroy()
+    self:onDisable()
+
+    for _, entity in ipairs(self.entities) do
+        entity:destroy()
+    end
+
+    self.entities = {}
+    self.enabled = false
+end
+
+
+function World:setCameraTarget(entity)
+	self.mainCamera:follow(entity)
+end
 
 return World

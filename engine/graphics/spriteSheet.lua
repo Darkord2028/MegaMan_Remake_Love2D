@@ -1,5 +1,5 @@
 local anim8 = require("engine.vendor.anim8")
-local Assets = require("assets.src.assetManager")
+local Assets = require("engine.managers.assetManager")
 
 local SpriteSheet = {}
 SpriteSheet.__index = SpriteSheet
