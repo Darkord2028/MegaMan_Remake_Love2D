@@ -6,10 +6,12 @@ local game
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
+    love.window.setFullscreen(false)
     AssetManager.loadManifest(AssetManifest)
     
     game = Game.new()
-    game:loadWorld("test")
+    game:loadWorld("laboratory")
+
 end
 
 function love.update(dt)

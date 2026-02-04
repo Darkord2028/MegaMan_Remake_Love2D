@@ -8,9 +8,15 @@ function SpriteRendererComponent:new(image)
     self.image = image
     self.quad = nil
     self.visible = true
+
+    self.pivotX = 0.5
+    self.pivotY = 0.5
+
     self.flipX = false
     self.flipY = false
+
     self.color = {1, 1, 1, 1}
+
     self.sortingLayer = SortingLayers.Default
     self.orderInLayer = 0
 end
@@ -32,6 +38,11 @@ function SpriteRendererComponent:setColor(r, g, b, a)
     self.color[2] = 1 or g
     self.color[3] = 1 or b
     self.color[4] = 1 or a
+end
+
+function SpriteRendererComponent:setPivot(px, py)
+    self.offsetX = px or 0
+    self.offsetY = py or 0
 end
 
 function SpriteRendererComponent:setSortingLayer(layer)
@@ -57,23 +68,23 @@ function SpriteRendererComponent:draw()
     local pos   = transform.position
     local scale = transform.scale
 
-    -- sprite size from quad
     local _, _, w, h = self.quad:getViewport()
 
-    -- flip handling
+    local ox = w * self.pivotX
+    local oy = h * self.pivotY
+
+    local drawX = math.floor(pos.x)
+    local drawY = math.floor(pos.y)
+
     local sx = scale.x
     local sy = scale.y
-    local ox = 0
-    local oy = 0
 
     if self.flipX then
         sx = -sx
-        ox = w
     end
 
     if self.flipY then
         sy = -sy
-        oy = h
     end
 
     local r, g, b, a = love.graphics.getColor()
@@ -82,8 +93,8 @@ function SpriteRendererComponent:draw()
     love.graphics.draw(
         self.image,
         self.quad,
-        math.floor(pos.x),
-        math.floor(pos.y),
+        drawX,
+        drawY,
         transform.rotation,
         sx,
         sy,

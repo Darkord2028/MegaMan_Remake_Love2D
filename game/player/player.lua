@@ -5,6 +5,7 @@ local Event = require("engine.core.event")
 local TransformComponent = require("engine.components.transformComponent")
 local SpriteRendererComponent = require("engine.components.spriteRendererComponent")
 local AnimatorComponent = require("engine.components.animatorComponent")
+local BumpComponent = require("engine.components.bumpComponent")
 local InputComponent = require("engine.components.inputComponent")
 
 local SpriteSheet = require("engine.graphics.spriteSheet")
@@ -20,6 +21,7 @@ function Player:new(x, y)
 
     -- TRANSFORM
     local transform = TransformComponent()
+    self.transform = transform
     transform.position = Vec2(x, y)
     transform.scale = Vec2(2, 2)
     self:addComponent(transform)
@@ -41,6 +43,12 @@ function Player:new(x, y)
     animator:addAnimation("run",  grid("1-8", 2), 0.08)
     animator:play("idle")
 
+    -- PHYSICS
+    local bump = BumpComponent(10, 10)
+    self:addComponent(bump)
+    self.bump = bump
+    self.bump:setSize(28, 53, 0, 12)
+
     -- INPUT
     local input = InputComponent()
     self:addComponent(input)
@@ -55,9 +63,14 @@ function Player:new(x, y)
     moveRight:bindKey("d")
     moveRight:bindKey("right")
 
+    -- Movement variables
     self.moveDir = 0
     self.speed   = 140
     self.facing  = 1
+    self.velocityY = 0
+    self.gravity = 800
+    self.jumpForce = 350
+    self.isGrounded = false
 
     Event.on("input:started", function(entity, action)
         if entity ~= self then return end
@@ -73,7 +86,6 @@ function Player:new(x, y)
         end
     end)
 
-
     Event.on("input:cancelled", function(entity, action)
         if entity ~= self then return end
 
@@ -82,6 +94,56 @@ function Player:new(x, y)
             self.animator:play("idle")
         end
     end)
+end
+
+function Player:onEnable()
+    Entity.onEnable(self)
+
+    if self.world then
+        self.world:setCameraTarget(self)
+    end
+end
+
+function Player:update(dt)
+    Entity.update(self, dt)
+    
+    local transform = self:getComponent("TransformComponent")
+    if not transform then return end
+
+    -- Apply gravity
+    --self.velocityY = self.velocityY + self.gravity * dt
+
+    -- Calculate movement
+    local dx = self.moveDir * self.speed * dt
+    local dy = self.velocityY * dt
+
+    -- Goal position
+    local goalX = transform.position.x + dx
+    local goalY = transform.position.y + dy
+
+    -- Move with collision detection
+    local actualX, actualY, cols, len = self.bump:move(goalX, goalY)
+
+    -- Handle collisions
+    self.isGrounded = false
+    for i = 1, len do
+        local col = cols[i]
+        
+        -- Hit ground (normal pointing up)
+        if col.normal.y == -1 then
+            self.velocityY = 0
+            self.isGrounded = true
+        end
+        
+        -- Hit ceiling (normal pointing down)
+        if col.normal.y == 1 then
+            self.velocityY = 0
+        end
+    end
+
+    if self.renderer then
+        self.renderer.flipX = self.facing < 0
+    end
 
 end
 

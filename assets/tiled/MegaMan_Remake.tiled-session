@@ -1,0 +1,54 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "tileMaps/Laboratory.tmx",
+    "expandedProjectPaths": [
+        "tileMaps",
+        "tileSet",
+        "."
+    ],
+    "fileStates": {
+        "tileMaps/Laboratory.tmx": {
+            "scale": 0.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 623,
+                "y": 892
+            }
+        },
+        "tileMaps/Laboratory.tmx#Laboratory": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tileSet/Laboratory.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 4
+        }
+    },
+    "last.exportedFilePath": "C:/Love2D_Projects/MegaMan_Remake_Love2D/assets/maps/laboratory",
+    "last.imagePath": "C:/Love2D_Projects/MegaMan_Remake_Love2D/assets/maps/laboratory",
+    "map.height": 100,
+    "map.lastUsedExportFilter": "Lua files (*.lua)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 100,
+    "openFiles": [
+        "tileSet/Laboratory.tsx",
+        "tileMaps/Laboratory.tmx"
+    ],
+    "project": "MegaMan_Remake.tiled-project",
+    "recentFiles": [
+        "tileSet/Laboratory.tsx",
+        "tileMaps/Laboratory.tmx"
+    ],
+    "resizeMap.removeObjects": false,
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
