@@ -23,7 +23,7 @@ function Player:new(x, y)
     local transform = TransformComponent()
     self.transform = transform
     transform.position = Vec2(x, y)
-    transform.scale = Vec2(2, 2)
+    transform.scale = Vec2(1, 1)
     self:addComponent(transform)
 
     -- RENDERER
@@ -47,7 +47,7 @@ function Player:new(x, y)
     local bump = BumpComponent(10, 10)
     self:addComponent(bump)
     self.bump = bump
-    self.bump:setSize(28, 53, 0, 12)
+    self.bump:setSize(18, 26, 0, 6)
 
     -- INPUT
     local input = InputComponent()
@@ -113,37 +113,29 @@ function Player:update(dt)
     -- Apply gravity
     --self.velocityY = self.velocityY + self.gravity * dt
 
-    -- Calculate movement
+    local left = self.input.actions["move_left"] and self.input.actions["move_left"].isDown
+    local right = self.input.actions["move_right"] and self.input.actions["move_right"].isDown
+
+    if left and not right then
+        self.moveDir = -1
+        self.facing = -1
+        self.animator:play("run")
+    elseif right and not left then
+        self.moveDir = 1
+        self.facing = 1
+        self.animator:play("run")
+    else
+        self.moveDir = 0
+        self.animator:play("idle")
+    end
+
     local dx = self.moveDir * self.speed * dt
     local dy = self.velocityY * dt
 
-    -- Goal position
-    local goalX = transform.position.x + dx
-    local goalY = transform.position.y + dy
+    local transform = self.transform
+    self.bump:move(transform.position.x + dx, transform.position.y + dy)
 
-    -- Move with collision detection
-    local actualX, actualY, cols, len = self.bump:move(goalX, goalY)
-
-    -- Handle collisions
-    self.isGrounded = false
-    for i = 1, len do
-        local col = cols[i]
-        
-        -- Hit ground (normal pointing up)
-        if col.normal.y == -1 then
-            self.velocityY = 0
-            self.isGrounded = true
-        end
-        
-        -- Hit ceiling (normal pointing down)
-        if col.normal.y == 1 then
-            self.velocityY = 0
-        end
-    end
-
-    if self.renderer then
-        self.renderer.flipX = self.facing < 0
-    end
+    self.renderer.flipX = self.facing < 0
 
 end
 

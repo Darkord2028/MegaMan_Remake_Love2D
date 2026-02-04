@@ -12,8 +12,10 @@ function TestWorld:new()
     self.gameMap = sti('assets/maps/laboratory/laboratory.lua')
     self:setPhysicsWorld(16)
 
-    local player = Player(500, 500)
+    local player = Player(50, 220)
     self:addEntity(player)
+
+    self:setCameraTarget(player)
 
 end
 

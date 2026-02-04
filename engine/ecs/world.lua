@@ -80,7 +80,7 @@ end
 function World:draw()
     if not self.enabled then return end
 
-    self.mainCamera:attach()
+    --self.mainCamera:attach()
 
     if self.gameMap then
         for _, layer in ipairs(self.gameMap.layers) do
@@ -106,7 +106,7 @@ function World:draw()
 
     self:drawPhysics()
 
-    self.mainCamera:detach()
+    --self.mainCamera:detach()
 end
 
 function World:destroy()
