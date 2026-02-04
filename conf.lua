@@ -1,7 +1,7 @@
 function love.conf(t)
     t.window.title = "Mega Man"
-    t.window.width = 1920
-    t.window.height = 1080
+    t.window.width = 1280
+    t.window.height = 720
     t.fullscreen = false
     t.resizable = false
     t.borderless = true

@@ -5,8 +5,8 @@ local Game = require("game.game")
 
 local game
 
-VIRTUAL_WIDTH = 320 * 2
-VIRTUAL_HEIGHT = 180 * 2
+VIRTUAL_WIDTH = 640
+VIRTUAL_HEIGHT = 360
 
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
@@ -17,23 +17,26 @@ function love.load()
         love.graphics.getWidth(),
         love.graphics.getHeight(),
         {
-            fullscreen = false,
+            fullscreen = true,
+            borderless = true,
             resizable = false,
-            pixelperfect = true,
+            pixelperfect = false,
             highdpi = false,
             canvas = true
         }
     )
-
-    love.window.setMode(0, 0, {
-        fullscreen = false,
-        borderless = true
-    })
     
     AssetManager.loadManifest(AssetManifest)
 
     game = Game.new()
     game:loadWorld("laboratory")
+
+    print(
+        love.graphics.getWidth(),
+        love.graphics.getHeight(),
+        love.window.getDPIScale()
+    )
+
 
 end
 
