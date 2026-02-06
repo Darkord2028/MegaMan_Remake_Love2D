@@ -4,7 +4,7 @@ local Vec2   = require("engine.math.vec2")
 local TransformComponent = require("engine.components.transformComponent")
 local SpriteRendererComponent = require("engine.components.spriteRendererComponent")
 local AnimatorComponent = require("engine.components.animatorComponent")
-local BumpComponent = require("engine.components.bumpComponent")
+local WindComponent = require("engine.components.windComponent")
 
 local SpriteSheet = require("engine.graphics.spriteSheet")
 
@@ -41,10 +41,9 @@ function Enemy:new(x, y)
     animator:play("idle")
 
     -- PHYSICS
-    local bump = BumpComponent(10, 10)
-    self:addComponent(bump)
-    self.bump = bump
-    self.bump:setSize(18, 26, 0, 6)
+    local wind = WindComponent(25, 30)
+    self:addComponent(wind)
+    self.wind = wind
 
 end
 

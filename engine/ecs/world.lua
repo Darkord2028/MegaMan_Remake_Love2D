@@ -1,6 +1,6 @@
 local Object = require("engine.core.object")
 local Camera = require("engine.vendor.camera")
-local Bump = require("engine.vendor.bump")
+local Windfield = require("engine.vendor.windfield")
 local MathUtils = require("engine.math.utils")
 
 local World = Object:extend()
@@ -17,7 +17,10 @@ function World:new()
     self.cameraLookAhead = 100
     self.cameraOffsetSpeed = 10
     
-    self.physicsWorld = nil
+    self.physicsWorld = Windfield.newWorld()
+    self.physicsWorld:addCollisionClass("solid")
+    self.physicsWorld:addCollisionClass("player", { ignores = { "player" } })
+    self.groundColliders = {}
 end
 
 function World:addEntity(entity)
@@ -28,23 +31,39 @@ function World:addEntity(entity)
         entity:onEnable()
     end
 
-    local bump = entity:getComponent("BumpComponent")
+    local wind = entity:getComponent("WindComponent")
     local transform = entity:getComponent("TransformComponent")
 
-    if bump and transform and self.physicsWorld then
-        self.physicsWorld:add(
-            entity,
-            transform.position.x - bump.width / 2 + bump.offsetX,
-            transform.position.y - bump.height / 2 + bump.offsetY,
-            bump.width,
-            bump.height
-        )
+    if wind and transform and self.physicsWorld then
+        local x = transform.position.x + wind.offsetX
+        local y = transform.position.y + wind.offsetY
+
+        local collider = self.physicsWorld:newBSGRectangleCollider(x, y, wind.width, wind.height, 4)
+
+        collider:setCollisionClass(wind.collisionClass)
+        collider:setSensor(wind.isSensor)
+        collider:setFixedRotation(true)
+        collider:setObject(entity)
+
+        if wind.bodyType == "static" then
+            collider:setType("static")
+        elseif wind.bodyType == "kinematic" then
+            collider:setType("kinematic")
+        else
+            collider:setType("dynamic")
+        end
+
+        wind.collider = collider
+
     end
 end
 
 function World:removeEntity(entity)
-    if self.physicsWorld and self.physicsWorld:hasItem(entity) then
-        self.physicsWorld:remove(entity)
+    
+    local wind = entity:getComponent("WindComponent")
+    if wind and wind.collider then
+        wind.collider:destroy()
+        wind.collider = nil
     end
     
     for i, e in ipairs(self.entities) do
@@ -57,10 +76,20 @@ end
 
 function World:onEnable()
     self.enabled = true
-    
+
     for _, entity in ipairs(self.entities) do
         entity:onEnable()
     end
+
+    if self.gameMap.layers["GroundCollider"] then
+        for i, obj in ipairs(self.gameMap.layers["GroundCollider"].objects) do
+            local collider = self.physicsWorld:newRectangleCollider(obj.x, obj.y, obj.width, obj.height)
+            collider:setType("static")
+            collider:setCollisionClass("solid")
+            table.insert(self.groundColliders, collider)
+        end
+    end
+
 end
 
 function World:onDisable()
@@ -74,10 +103,21 @@ end
 function World:update(dt)
     if not self.enabled then return end
 
+    self.physicsWorld:update(dt)
+
     for _, entity in ipairs(self.entities) do
         entity:update(dt)
-    end
 
+        local wind = entity:getComponent("WindComponent")
+        local transform = entity:getComponent("TransformComponent")
+
+        if wind and wind.collider and transform then
+            local x, y = wind.collider:getPosition()
+            transform.position.x = x - wind.offsetX
+            transform.position.y = y - wind.offsetY
+        end
+    end
+    
     self:updateCamera()
 end
 
@@ -108,7 +148,9 @@ function World:draw()
         renderer:draw()
     end
 
-    self:drawPhysics()
+    if self.physicsWorld then
+        --self.physicsWorld:draw(1)
+    end
 
     self.mainCamera:detach()
 end
@@ -125,17 +167,6 @@ function World:destroy()
     
     if self.physicsWorld then
         self.physicsWorld = nil
-    end
-end
-
-function World:drawPhysics()
-    if not self.physicsWorld then return end
-    
-    for _, item in ipairs(self.physicsWorld:getItems()) do
-        local x, y, w, h = self.physicsWorld:getRect(item)
-        love.graphics.setColor(1, 0, 0, 0.4)
-        love.graphics.rectangle("line", x, y, w, h)
-        love.graphics.setColor(1, 1, 1, 1)
     end
 end
 
@@ -193,10 +224,6 @@ function World:updateCamera()
     )
 
     self.mainCamera:lockPosition(camX, camY)
-end
-
-function World:setPhysicsWorld(cellSize)
-    self.physicsWorld = Bump.newWorld(cellSize or 16)
 end
 
 return World

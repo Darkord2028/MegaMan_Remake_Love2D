@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="80" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="80" height="23" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="14">
  <editorsettings>
   <export target="../../maps/laboratory/laboratory.lua" format="lua"/>
  </editorsettings>
@@ -142,6 +142,17 @@
 </data>
   </layer>
  </group>
+ <objectgroup id="9" name="GroundCollider">
+  <object id="3" x="16.25" y="304.75" width="126.75" height="13.75" visible="0"/>
+  <object id="4" x="144" y="288.5" width="64.25" height="13.75" visible="0"/>
+  <object id="5" x="240.5" y="272" width="62.25" height="10.5" visible="0"/>
+  <object id="6" x="336.75" y="256.5" width="94.75" height="14.5" visible="0"/>
+  <object id="7" x="464.75" y="208.75" width="94.25" height="14.25" visible="0"/>
+  <object id="8" x="562.25" y="177" width="67.25" height="57.75" visible="0"/>
+  <object id="11" x="0" y="-1" width="17" height="373" visible="0"/>
+  <object id="12" x="20" y="0" width="1260" height="17" visible="0"/>
+  <object id="13" x="19" y="336" width="1259" height="32" visible="0"/>
+ </objectgroup>
  <layer id="8" name="Border" width="80" height="23">
   <data encoding="csv">
 180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,

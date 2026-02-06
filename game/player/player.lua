@@ -5,7 +5,7 @@ local Event = require("engine.core.event")
 local TransformComponent = require("engine.components.transformComponent")
 local SpriteRendererComponent = require("engine.components.spriteRendererComponent")
 local AnimatorComponent = require("engine.components.animatorComponent")
-local BumpComponent = require("engine.components.bumpComponent")
+local WindComponent = require("engine.components.windComponent")
 local InputComponent = require("engine.components.inputComponent")
 
 local SpriteSheet = require("engine.graphics.spriteSheet")
@@ -21,10 +21,10 @@ function Player:new(x, y)
 
     -- TRANSFORM
     local transform = TransformComponent()
+    self:addComponent(transform)
     self.transform = transform
     transform.position = Vec2(x, y)
     transform.scale = Vec2(1, 1)
-    self:addComponent(transform)
 
     -- RENDERER
     local renderer = SpriteRendererComponent(playerSheet:getImage())
@@ -39,20 +39,22 @@ function Player:new(x, y)
 
     -- ANIMATIONS
     local grid = playerSheet:getGrid()
-    animator:addAnimation("idle", grid("1-5", 1), 0.15)
+    animator:addAnimation("idle", grid("1-5", 1), 0.25)
     animator:addAnimation("run",  grid("1-8", 2), 0.08)
     animator:play("idle")
 
     -- PHYSICS
-    local bump = BumpComponent(10, 10)
-    self:addComponent(bump)
-    self.bump = bump
-    self.bump:setSize(18, 26, 0, 6)
+    local wind = WindComponent(15, 27)
+    self:addComponent(wind)
+    self.wind = wind
+    self.wind:setOffset(-2, 5)
+    self.collider = nil
 
     -- INPUT
     local input = InputComponent()
     self:addComponent(input)
     self.input = input
+    self:HandleInputEvent()
 
     -- Input Actions
     local moveLeft = input:addAction("move_left")
@@ -68,10 +70,29 @@ function Player:new(x, y)
     self.speed   = 140
     self.facing  = 1
     self.velocityY = 0
-    self.gravity = 800
+    self.gravity = 100
     self.jumpForce = 350
     self.isGrounded = false
 
+end
+
+function Player:onEnable()
+    Entity.onEnable(self)
+
+    self.collider = self.wind:getCollider()
+
+    if self.world then
+        self.world:setCameraTarget(self)
+    end
+end
+
+function Player:update(dt)
+    Entity.update(self, dt)
+
+    self:HandleMovement(dt)
+end
+
+function Player:HandleInputEvent()
     Event.on("input:started", function(entity, action)
         if entity ~= self then return end
 
@@ -96,25 +117,15 @@ function Player:new(x, y)
     end)
 end
 
-function Player:onEnable()
-    Entity.onEnable(self)
-
-    if self.world then
-        self.world:setCameraTarget(self)
+function Player:HandleMovement(dt)
+    if not self.transform then
+        return
     end
-end
-
-function Player:update(dt)
-    Entity.update(self, dt)
-    
-    local transform = self:getComponent("TransformComponent")
-    if not transform then return end
-
-    -- Apply gravity
-    --self.velocityY = self.velocityY + self.gravity * dt
 
     local left = self.input.actions["move_left"] and self.input.actions["move_left"].isDown
     local right = self.input.actions["move_right"] and self.input.actions["move_right"].isDown
+
+    local vx, vy
 
     if left and not right then
         self.moveDir = -1
@@ -129,14 +140,9 @@ function Player:update(dt)
         self.animator:play("idle")
     end
 
-    local dx = self.moveDir * self.speed * dt
-    local dy = self.velocityY * dt
-
-    local transform = self.transform
-    self.bump:move(transform.position.x + dx, transform.position.y + dy)
+    self.collider:setLinearVelocity(self.speed * self.moveDir, self.gravity)
 
     self.renderer.flipX = self.facing < 0
-
 end
 
 return Player
