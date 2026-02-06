@@ -30,14 +30,6 @@ function love.load()
 
     game = Game.new()
     game:loadWorld("laboratory")
-
-    print(
-        love.graphics.getWidth(),
-        love.graphics.getHeight(),
-        love.window.getDPIScale()
-    )
-
-
 end
 
 function love.update(dt)

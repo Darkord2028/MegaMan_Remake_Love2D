@@ -5,20 +5,23 @@
     },
     "activeFile": "tileMaps/Laboratory.tmx",
     "expandedProjectPaths": [
-        "tileMaps",
+        ".",
         "tileSet",
-        "."
+        "tileMaps"
     ],
     "fileStates": {
         "": {
             "scaleInDock": 1
         },
         "tileMaps/Laboratory.tmx": {
-            "scale": 1,
-            "selectedLayer": 1,
+            "expandedGroupLayers": [
+                7
+            ],
+            "scale": 1.5,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 329,
-                "y": 245
+                "x": 369.99999999999994,
+                "y": 165.33333333333334
             }
         },
         "tileMaps/Laboratory.tmx#Laboratory": {
@@ -38,7 +41,7 @@
         },
         "tileSet/Laboratory.tsx": {
             "dynamicWrapping": false,
-            "scaleInDock": 1,
+            "scaleInDock": 1.5,
             "scaleInEditor": 4
         }
     },
@@ -51,12 +54,14 @@
     "map.tileWidth": 16,
     "map.width": 100,
     "openFiles": [
-        "tileMaps/Laboratory.tmx"
+        "tileMaps/Laboratory.tmx",
+        "tileSet/Laboratory.tsx"
     ],
     "project": "MegaMan_Remake.tiled-project",
+    "property.type": "bool",
     "recentFiles": [
-        "tileMaps/Laboratory.tmx",
         "tileSet/Laboratory.tsx",
+        "tileMaps/Laboratory.tmx",
         "tileMaps/Test.tmx"
     ],
     "resizeMap.removeObjects": true,

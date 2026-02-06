@@ -4,6 +4,7 @@ local Vec2   = require("engine.math.vec2")
 local TransformComponent = require("engine.components.transformComponent")
 local SpriteRendererComponent = require("engine.components.spriteRendererComponent")
 local AnimatorComponent = require("engine.components.animatorComponent")
+local BumpComponent = require("engine.components.bumpComponent")
 
 local SpriteSheet = require("engine.graphics.spriteSheet")
 
@@ -19,7 +20,7 @@ function Enemy:new(x, y)
     -- TRANSFORM
     local transform = TransformComponent()
     transform.position = Vec2(x, y)
-    transform.scale = Vec2(2, 2)
+    transform.scale = Vec2(1, 1)
     self:addComponent(transform)
 
     -- RENDERER
@@ -38,6 +39,12 @@ function Enemy:new(x, y)
     animator:addAnimation("idle", grid("1-5", 1), 0.15)
     animator:addAnimation("run",  grid("1-8", 2), 0.08)
     animator:play("idle")
+
+    -- PHYSICS
+    local bump = BumpComponent(10, 10)
+    self:addComponent(bump)
+    self.bump = bump
+    self.bump:setSize(18, 26, 0, 6)
 
 end
 

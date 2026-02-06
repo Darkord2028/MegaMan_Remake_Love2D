@@ -1,5 +1,6 @@
 local World = require("engine.ecs.world")
 local Player = require("game.player.player")
+local Enemy = require("game.enemy.enemy")
 
 local sti = require("engine.vendor.sti")
 

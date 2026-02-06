@@ -1,6 +1,7 @@
 local Object = require("engine.core.object")
-local Camera = require("engine.vendor.humpCamera")
+local Camera = require("engine.vendor.camera")
 local Bump = require("engine.vendor.bump")
+local MathUtils = require("engine.math.utils")
 
 local World = Object:extend()
 World.__name = "World"
@@ -9,7 +10,12 @@ function World:new()
     self.entities = {}
     self.enabled = true
 
-    self.mainCamera = Camera(0, 0, 1)
+    self.mainCamera = Camera(0, 0, 1, 0, Camera.smooth.damped(5))
+    self.cameraTarget = nil
+    self.cameraOffset = { x = 0, y = 0 }
+    self.cameraOffsetTarget = { x = 0, y = 0}
+    self.cameraLookAhead = 100
+    self.cameraOffsetSpeed = 10
     
     self.physicsWorld = nil
 end
@@ -72,15 +78,13 @@ function World:update(dt)
         entity:update(dt)
     end
 
-    if self.mainCamera.update then
-        self.mainCamera:update(dt)
-    end
+    self:updateCamera()
 end
 
 function World:draw()
     if not self.enabled then return end
 
-    --self.mainCamera:attach()
+    self.mainCamera:attach()
 
     if self.gameMap then
         for _, layer in ipairs(self.gameMap.layers) do
@@ -106,7 +110,7 @@ function World:draw()
 
     self:drawPhysics()
 
-    --self.mainCamera:detach()
+    self.mainCamera:detach()
 end
 
 function World:destroy()
@@ -146,7 +150,49 @@ function World:queryPoint(x, y, filter)
 end
 
 function World:setCameraTarget(entity)
-    self.mainCamera:lookAt(entity.transform.position.x, entity.transform.position.y)
+    self.cameraTarget = entity
+end
+
+function World:setCameraOffset(x, y)
+    self.cameraOffset.x = x
+    self.cameraOffset.y = y
+end
+
+function World:updateCamera()
+    if not self.cameraTarget or not self.gameMap then return end
+
+    local pos = self.cameraTarget.transform.position
+
+    if self.cameraTarget.facing then
+        self.cameraOffsetTarget.x =
+            self.cameraTarget.facing * self.cameraLookAhead
+    end
+
+    self.cameraOffset.x = MathUtils.lerp(
+        self.cameraOffset.x,
+        self.cameraOffsetTarget.x,
+        love.timer.getDelta() * self.cameraOffsetSpeed
+    )
+
+    local mapW = self.gameMap.width  * self.gameMap.tilewidth
+    local mapH = self.gameMap.height * self.gameMap.tileheight
+
+    local halfW = VIRTUAL_WIDTH  / 2
+    local halfH = VIRTUAL_HEIGHT / 2
+
+    local camX = MathUtils.clamp(
+        pos.x + self.cameraOffset.x,
+        halfW,
+        mapW - halfW
+    )
+
+    local camY = MathUtils.clamp(
+        pos.y + self.cameraOffset.y,
+        halfH,
+        mapH - halfH
+    )
+
+    self.mainCamera:lockPosition(camX, camY)
 end
 
 function World:setPhysicsWorld(cellSize)

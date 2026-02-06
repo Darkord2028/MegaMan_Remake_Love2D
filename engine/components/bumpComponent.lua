@@ -1,5 +1,4 @@
 local EntityComponent = require("engine.ecs.entityComponent")
-local WorldManager = require("engine.managers.worldManager")
 
 local BumpComponent = EntityComponent:extend()
 BumpComponent.__name = "BumpComponent"
@@ -62,12 +61,10 @@ function BumpComponent:move(goalX, goalY, filter)
     transform.position.x = actualX + self.width  / 2 - self.offsetX
     transform.position.y = actualY + self.height / 2 - self.offsetY
 
-
-    return
-    actualX + self.width  / 2 - self.offsetX,
-    actualY + self.height / 2 - self.offsetY,
-    cols,
-    len
+    return actualX + self.width / 2 - self.offsetX,
+       actualY + self.height / 2 - self.offsetY,
+       cols,
+       len
 
 end
 
@@ -125,13 +122,13 @@ function BumpComponent:syncToPhysics()
         return
     end
 
-    -- world.physicsWorld:update(
-    --     self.entity,
-    --     transform.position.x + self.offsetX,
-    --     transform.position.y + self.offsetY,
-    --     self.width,
-    --     self.height
-    -- )
+    world.physicsWorld:update(
+        self.entity,
+        transform.position.x + self.offsetX,
+        transform.position.y + self.offsetY,
+        self.width,
+        self.height
+    )
 end
 
 return BumpComponent
