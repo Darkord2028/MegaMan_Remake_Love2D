@@ -9,7 +9,7 @@ local WindComponent = require("engine.components.windComponent")
 local SpriteSheet = require("engine.graphics.spriteSheet")
 
 local Enemy = Entity:extend()
-Enemy.__name = "Player"
+Enemy.__name = "Enemy"
 
 function Enemy:new(x, y)
     Entity.new(self)
@@ -22,6 +22,7 @@ function Enemy:new(x, y)
     transform.position = Vec2(x, y)
     transform.scale = Vec2(1, 1)
     self:addComponent(transform)
+    self.transform = transform
 
     -- RENDERER
     local renderer = SpriteRendererComponent(playerSheet:getImage())
@@ -39,11 +40,6 @@ function Enemy:new(x, y)
     animator:addAnimation("idle", grid("1-5", 1), 0.15)
     animator:addAnimation("run",  grid("1-8", 2), 0.08)
     animator:play("idle")
-
-    -- PHYSICS
-    local wind = WindComponent(25, 30)
-    self:addComponent(wind)
-    self.wind = wind
 
 end
 

@@ -15,6 +15,12 @@ function TestWorld:new()
     local player = Player(50, 220)
     self:addEntity(player)
 
+    for _, child in ipairs(player.children) do
+        if child then
+            self:addEntity(child)
+        end
+    end
+
     self:setCameraTarget(player)
 
 end

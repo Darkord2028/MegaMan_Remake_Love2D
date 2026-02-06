@@ -9,6 +9,7 @@ local WindComponent = require("engine.components.windComponent")
 local InputComponent = require("engine.components.inputComponent")
 
 local SpriteSheet = require("engine.graphics.spriteSheet")
+local Enemy = require("game.enemy.enemy")
 
 local Player = Entity:extend()
 Player.__name = "Player"
@@ -73,6 +74,12 @@ function Player:new(x, y)
     self.gravity = 100
     self.jumpForce = 350
     self.isGrounded = false
+
+    -- Child
+    local enemy = Enemy(100, 220)
+    self.enemy = enemy
+    self:addChild(enemy)
+    self.enemy.transform:setLocalPosition(50, 0)
 
 end
 
