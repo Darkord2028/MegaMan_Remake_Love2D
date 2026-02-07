@@ -20,6 +20,7 @@ function World:new()
     self.physicsWorld = Windfield.newWorld()
     self.physicsWorld:addCollisionClass("solid")
     self.physicsWorld:addCollisionClass("player", { ignores = { "player" } })
+
     self.groundColliders = {}
 end
 
@@ -31,31 +32,6 @@ function World:addEntity(entity)
         entity:onEnable()
     end
 
-    local wind = entity:getComponent("WindComponent")
-    local transform = entity:getComponent("TransformComponent")
-
-    if wind and transform and self.physicsWorld then
-        local x = transform.position.x + wind.offsetX
-        local y = transform.position.y + wind.offsetY
-
-        local collider = self.physicsWorld:newBSGRectangleCollider(x, y, wind.width, wind.height, 4)
-
-        collider:setCollisionClass(wind.collisionClass)
-        collider:setSensor(wind.isSensor)
-        collider:setFixedRotation(true)
-        collider:setObject(entity)
-
-        if wind.bodyType == "static" then
-            collider:setType("static")
-        elseif wind.bodyType == "kinematic" then
-            collider:setType("kinematic")
-        else
-            collider:setType("dynamic")
-        end
-
-        wind.collider = collider
-
-    end
 end
 
 function World:removeEntity(entity)
@@ -107,15 +83,6 @@ function World:update(dt)
 
     for _, entity in ipairs(self.entities) do
         entity:update(dt)
-
-        local wind = entity:getComponent("WindComponent")
-        local transform = entity:getComponent("TransformComponent")
-
-        if wind and wind.collider and transform then
-            local x, y = wind.collider:getPosition()
-            transform.position.x = x - wind.offsetX
-            transform.position.y = y - wind.offsetY
-        end
     end
     
     self:updateCamera()
@@ -149,7 +116,7 @@ function World:draw()
     end
 
     if self.physicsWorld then
-        --self.physicsWorld:draw(1)
+        self.physicsWorld:draw(1)
     end
 
     self.mainCamera:detach()
@@ -170,14 +137,8 @@ function World:destroy()
     end
 end
 
-function World:queryRect(x, y, w, h, filter)
-    if not self.physicsWorld then return {} end
-    return self.physicsWorld:queryRect(x, y, w, h, filter)
-end
-
-function World:queryPoint(x, y, filter)
-    if not self.physicsWorld then return {} end
-    return self.physicsWorld:queryPoint(x, y, filter)
+function World:getPhysicsWorld()
+    return self.physicsWorld
 end
 
 function World:setCameraTarget(entity)

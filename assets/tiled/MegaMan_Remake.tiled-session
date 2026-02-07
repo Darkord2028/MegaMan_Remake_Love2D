@@ -14,14 +14,11 @@
             "scaleInDock": 1
         },
         "tileMaps/Laboratory.tmx": {
-            "expandedGroupLayers": [
-                7
-            ],
-            "scale": 1.5,
-            "selectedLayer": 3,
+            "scale": 1,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 369.99999999999994,
-                "y": 165.33333333333334
+                "x": -75,
+                "y": 279
             }
         },
         "tileMaps/Laboratory.tmx#Laboratory": {
