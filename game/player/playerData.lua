@@ -1,11 +1,12 @@
 return {
-	gravity = 250,
+	gravity = 350,
+	groundRayLength = 5,
 
 	-- Movement
 	movementSpeed = 140,
 
 	-- Jump
-	jumpForce = 150,
+	jumpForce = 200,
 	fallGravityMultiplier = 1.8,
 	lowJumpMultiplier = 2.2,
 	coyoteTime = 0.1, -- seconds

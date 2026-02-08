@@ -38,6 +38,7 @@ function Player:new(x, y)
 	local grid = sheet:getGrid()
 	self.animator:addAnimation("idle", grid("1-5", 1), 0.25)
 	self.animator:addAnimation("run", grid("1-8", 2), 0.08)
+	self.animator:addAnimation("jump", grid("3-3", 5), 0.08, false)
 	self.animator:play("idle")
 
 	self.currentAnim = "idle"
@@ -45,7 +46,7 @@ function Player:new(x, y)
 	-- PHYSICS (DYNAMIC BODY)
 	self.wind = WindComponent(15, 27)
 	self.wind:setOffset(-2, 5)
-	self.wind:setBodyType("dynamic") -- 🔥 REQUIRED
+	self.wind:setBodyType("dynamic")
 	self:addComponent(self.wind)
 
 	self.collider = nil
@@ -94,12 +95,11 @@ function Player:update(dt)
 	self.vx, self.vy = self.collider:getLinearVelocity()
 
 	-- Ground check
-	if self.collider:enter("solid") then
-		self.isGrounded = true
-	end
+	local wasGrounded = self.isGrounded
+	self.isGrounded = self:checkIfGrounded()
 
-	if not self.collider:stay("solid") then
-		self.isGrounded = false
+	if self.isGrounded and not wasGrounded then
+		self.coyoteTimer = playerData.coyoteTime
 	end
 
 	-- Jump
@@ -112,6 +112,10 @@ function Player:update(dt)
 	-- Gravity
 	if not self.isGrounded then
 		self.vy = self.vy + playerData.gravity * dt
+	end
+
+	if not self.isGrounded and self.jumpPressed then
+		self.jumpPressed = false
 	end
 
 	-- Horizontal movement
@@ -146,6 +150,7 @@ function Player:HandleInputEvent()
 end
 
 function Player:HandleMovement(dt)
+
 	local left = self.input.actions["move_left"] and self.input.actions["move_left"].isDown
 	local right = self.input.actions["move_right"] and self.input.actions["move_right"].isDown
 
@@ -161,14 +166,49 @@ function Player:HandleMovement(dt)
 
 	self.vx = playerData.movementSpeed * self.moveDir
 
-	if self.moveDir == 0 then
+	if self.moveDir == 0 and self.isGrounded then
 		self.currentAnim = "idle"
-	else
+	elseif self.moveDir ~= 0 and self.isGrounded then
 		self.currentAnim = "run"
+	else
+		self.currentAnim = "jump"
 	end
 
 	self.animator:play(self.currentAnim)
 	self.renderer.flipX = self.facing < 0
+end
+
+function Player:checkIfGrounded()
+	if not self.collider and not self.world then
+		return false
+	end
+
+	local world = self.world:getPhysicsWorld()
+
+	local cx, cy = self.collider:getPosition()
+	
+	local halfW = 15 / 2
+	local halfH = 27 / 2
+
+	local x1 = cx
+	local y1 = cy + halfH
+	local x2 = cx
+	local y2 = y1 + playerData.groundRayLength
+
+	local hit = false
+	world:rayCast(x1, y1, x2, y2, function (fixture, hx, hy, nx, ny, fraction)
+		local collider = fixture:getUserData()
+		if collider and collider.collision_class == "solid" then
+			if ny < -0.7 then
+				hit = true
+				return 0
+			end
+		end
+		return 1
+	end)
+
+	return hit
+
 end
 
 return Player
